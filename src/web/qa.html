@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Q&A Assistant</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .qa-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .question-box {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .response-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .button-group {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+        }
+        .file-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .source-selector {
+            margin: 20px 0;
+        }
+        .radio-group {
+            margin: 10px 0;
+        }
+        .radio-group label {
+            margin-right: 20px;
+        }
+        .input-container {
+            display: none;
+        }
+        .input-container.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div><h1 id="title">Questionner une url ou un pdf</h1></div>
+    <div class="qa-container">
+        <div class="question-box">
+            <div class="source-selector">
+                <h2>Choisir la source</h2>
+                <div class="radio-group">
+                    <input type="radio" id="pdf-source" name="source" value="pdf" checked>
+                    <label for="pdf-source">Fichier PDF</label>
+                    <input type="radio" id="url-source" name="source" value="url">
+                    <label for="url-source">URL</label>
+                </div>
+            </div>
+
+            <div id="pdf-input" class="input-container active">
+                <h2>Fichier à analyser</h2>
+                <input type="text" id="file-input" class="file-input" 
+                       placeholder="Entrez le chemin du fichier PDF..." 
+                       value="G:/OneDrive/Entreprendre/Actions-4/M431/annonce.pdf">
+            </div>
+
+            <div id="url-input" class="input-container">
+                <h2>URL à analyser</h2>
+                <input type="text" id="url-input-field" class="file-input" 
+                       placeholder="Entrez l'URL à analyser..." value="https://candidat.francetravail.fr/offres/recherche/detail/7836756">
+            </div>
+
+            <h2>Votre Question</h2>
+            <textarea id="question-input" rows="4" placeholder="Posez votre question ici...">peux tu faire un résumé structuré de l'offre proposée dans l'annonce</textarea>
+            <div class="button-group">
+                <button onclick="askQuestion()" id="Ask">Demander une réponse</button>
+                <button onclick="clearQuestion()">Effacer</button>
+            </div>
+        </div>
+        <div class="response-box" id="responseArea">
+            La réponse apparaîtra ici...
+        </div>
+    </div>
+ <!--    <div class="container">
+        <h2>Sélectionnez les fichiers PDF</h2>
+        <label for="job-offer-input">Offre d'emploi :</label>
+        <input type="file" id="job-offer-input" accept="application/pdf" value="G:/OneDrive/Entreprendre/Actions-4/M431/annonce1.pdf">
+        <label for="candidate-profile-input">Profil candidat :</label>
+        <input type="file" id="candidate-profile-input" accept="application/pdf" value="G:/OneDrive/Entreprendre/CV/persona/IngeEtudeDev/CV_Cyril_SAURET_Ingé-Etudes-Dev.pdf">
+        <button id="validate">Valider</button>
+        <p id="responseArea_1"></p>
+    </div> -->
+   
+    <script>
+        function clearQuestion() {
+            document.getElementById('responseArea').textContent = 'La réponse apparaîtra ici...';
+        }
+
+        // Gestion des boutons radio
+        document.querySelectorAll('input[name="source"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.input-container').forEach(container => {
+                    container.classList.remove('active');
+                });
+                if (this.value === 'pdf') {
+                    document.getElementById('pdf-input').classList.add('active');
+                } else {
+                    document.getElementById('url-input').classList.add('active');
+                }
+            });
+        });
+
+      
+    </script>
+    <script src="eel.js"></script> 
+    <script src="./qa.js"></script> 
+    <script src="./request.js"></script> 
+    
+    
+</body>
+</html>

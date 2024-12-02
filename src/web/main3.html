@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+    <header class="header-bar">
+        <h1>Gestionnaire d'annonce</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#colonnes" onclick="toggleColumnVisibilityForm()">Colonnes</a></li>
+                <li><a href="#Save" onclick="refresh()">Refresh</a></li>
+                <li><a href="#" onclick="openQA()">Assistant Q&A</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="tabs" id="tabs">
+        <button class="tab" onclick="changeTab('New')">New</button>
+        <button class="tab" onclick="changeTab('ToDo')">ToDo</button>
+       <!--  <button class="tab" onclick="changeTab('Analyser')">Analyser</button>
+        <button class="tab" onclick="changeTab('Repondre')">Repondre</button>
+        
+        <button class="tab" onclick="changeTab('Refuser')">Refusé</button>
+        -->
+        <button class="tab active" onclick="changeTab('All')">Campagne</button>
+        <button class="tab" onclick="changeTab('Repondu')">Repondue</button>
+        <button class="tab" onclick="changeTab('RDV')">RDV</button> 
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr></tr>
+                <tr></tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+    <div id="contextMenu" class="context-menu">
+        <ul>
+            <li id="EditRow">Edit</li>
+            <li id="SetCurrentRow">Set current</li>
+            <li id="Repondue">Répondue</li>
+            <li id="Open">Open Dossier</li>
+            <li id="Question">Question</li>
+            <li >---------</li>
+            <li id="Delete">Delete</li>
+        </ul>
+    </div>
+    <script src="eel.js"></script> 
+    <script src="scripts3.js"></script> 
+
+</body>
+</html>
