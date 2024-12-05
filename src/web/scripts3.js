@@ -36,11 +36,12 @@ window.columns = [
     { key: 'todo', editable: true, width: '180px',"visible":true ,"type":"tb" },
     { key: 'tel', editable: true, width: '125px',"visible":true ,"type":"tb" },
     { key: 'contact', editable: true, width: '150px',"visible":true ,"type":"tb" },
-    { key: 'Commentaire', editable: true, width: '300px',"visible":true,"type":"tb"  },
+    { key: 'Commentaire', editable: true, width: '150px',"visible":true,"type":"tb"  },
     { key: 'url', editable: false, width: '100px',"visible":false ,"type":"tb" },
     { key: 'type', editable: true, width: '80px',"visible":false ,"type":"tb" },
     { key: 'annonce_pdf', editable: true, width: '80px',"visible":false ,"type":"tb" },
-    { key: 'type_question', editable: true, width: '80px',"visible":false ,"type":"tb" }
+    { key: 'type_question', editable: true, width: '80px',"visible":false ,"type":"tb" },
+    { key: 'lien_Etape', editable: true, width: '80px',"visible":false ,"type":"tb" }
 ];
 /**
  * Saves the current configuration of columns.
@@ -452,7 +453,7 @@ function openEditModal(rowId) {
     // Définir les groupes d'onglets
     const tabGroups = {
         'Informations principales': ['dossier', 'description', 'id', 'entreprise', 'categorie'],
-        'Statut et suivi': ['etat', 'Date' ,'url','todo'],
+        'Statut et suivi': ['etat', 'Date' ,'url','todo','lien_Etape'],
         'Contact': ['tel', 'contact'],
         'Détails': ['Commentaire', 'type', 'type_question']
     };

@@ -7,6 +7,7 @@ import platform
 import subprocess
 import shutil  # Add this import
 
+from .qa import  get_info  # Use absolute imports
 # Define the path to the JSON file
 
 load_dotenv()
@@ -21,32 +22,63 @@ def read_annonces_json():
        
         for root, _, files in os.walk(directory_path):
             parent_dir = os.path.basename(root)
-            #print (parent_dir)
+            file_annonce = parent_dir + "_annonce_.pdf"
+            record_added = False
+            data = {}
             for filename in files:
                 file_path = os.path.join(root, filename)
                 file_path = file_path.replace('\\', '/')  # Normalize path
-                #filename.endswith(".json")  and 
-                if  filename==".data.json":
+               
+                if filename == ".data.json":
                     try:
                         with open(file_path, 'r', encoding='utf-8') as file:
                             data = json.load(file)
-                            if not data['etat']=="DELETED":
+                            if not data['etat'] == "DELETED":
                                 data["dossier"] = parent_dir  # Add parent directory name to data
-                                #if not data['etat']=="DELETED":
-                                jData={ file_path: data}
-                                #print(f"fichier {file_path}")
+                                jData = {file_path: data}
                                 annonces_list.append(jData)
+                            record_added = True
 
                     except json.JSONDecodeError:
-                        errordata={"id":parent_dir,"description":"?","etat":"invalid JSON"}
-                        #jData={ file_path: errordata}
-                        #annonces_list.append(jData)
+                        errordata = {"id": parent_dir, "description": "?", "etat": "invalid JSON"}
                         print(f"Error: The file {file_path} contains invalid JSON.")
-                        #print(f"row {jData}")
-                
-                """  else:
-                    print(f"{file_path} n'est pas un fichier d'annonce")   """                  
-        #annonces_list = update_annonces_with_qa( annonces_list)
+            
+            if not record_added:
+                for filename in files:
+                    file_path = os.path.join(root, filename)
+                    file_path = file_path.replace('\\', '/')  # Normalize path
+                    file_annonce = parent_dir + "_annonce_.pdf"
+                    file_annonce_path = os.path.join(root, ".data.json")
+                    if filename == file_annonce:
+                        Data = define_default_data()     
+                        Data["dossier"] = parent_dir
+                        Data["etat"] = "gpt"
+                        
+                        try: 
+                            infos = get_info(file_path, "peux tu me trouver l'url de l'annonce ( elle se trouve entre <- et ->)  [url], l'entreprise [entreprise], le titre du poste [poste] (ce titre ne doit pas dépasser 20 caractère)")
+                            infos = json.loads(infos)  # Parse the JSON response
+                            if infos:
+                                Data["url"] = infos["url"]
+                                Data["entreprise"] = infos["entreprise"]
+                                Data["description"] = infos["poste"]
+                                record_added = True  
+                                Data["etat"] = "New"
+                                jData = {file_annonce_path: Data}   
+                                annonces_list.append(jData)
+                            else:
+                                record_added = True  
+                                Data["etat"] = "Vide"
+                                jData = {file_annonce_path: Data}   
+                                annonces_list.append(jData)
+                               
+                        except Exception as e:
+                            print(f"An unexpected error occurred get infos with gpt: {e}")
+                            record_added = True  
+                            Data["etat"] = "Error"
+                            jData = {file_annonce_path: Data}   
+                            annonces_list.append(jData)
+                    if record_added: break
+                                
         return annonces_list 
     except Exception as e:
         print(f"An unexpected error occurred while reading annonces: {e}")
@@ -60,7 +92,6 @@ def save_annonces_json(data):
                 file_path = file_path.replace('\\', '/')  # Normalize path
                 with open(file_path, 'w', encoding='utf-8') as file:
                     json.dump(content, file, ensure_ascii=False, indent=4)
-                #print(f"file saved {file}")
     except Exception as e:
         print(f"An unexpected error occurred while saving data: {e}")
 
@@ -72,37 +103,25 @@ def openUrl(url):
 def dirExits(dir):
     directory_path = f'G:/OneDrive/Entreprendre/Actions/{dir}'
 
-    # Vérifier si le répertoire existe
     if not os.path.exists(directory_path):
-        """ # Créer le répertoire
-        os.makedirs(directory_path)
-        print(f'Répertoire {directory_path} créé.') """
-        return False;
+        return False
     else:
-        return True;
+        return True
 
-""" def isWordExist(file):
-     """
-     
-     
-     
 @eel.expose
-def save_filters_json(filters,tabactiv):
-    #file_path = os.getenv("ANNONCES_FILE_FILTER")
-    file_path = os.path.join(os.getenv("ANNONCES_DIR_FILTER"),tabactiv+"_filter")+".json"
+def save_filters_json(filters, tabactiv):
+    file_path = os.path.join(os.getenv("ANNONCES_DIR_FILTER"), tabactiv + "_filter") + ".json"
     file_path = file_path.replace('\\', '/')  # Normalize path
     try:
         with open(file_path, 'w', encoding='utf-8') as file:
             json.dump(filters, file, ensure_ascii=False, indent=4)
-            #print(f"Filter values successfully saved to {file_path}")
     except Exception as e:
         print(f"An unexpected error occurred while saving filter values: {e}")
 
 @eel.expose
 def read_filters_json(tabactiv):
     try:
-        file_path = os.path.join(os.getenv("ANNONCES_DIR_FILTER"),tabactiv+"_filter")+".json"
-        #print(f"Reading filter values from {file_path}")
+        file_path = os.path.join(os.getenv("ANNONCES_DIR_FILTER"), tabactiv + "_filter") + ".json"
         file_path = file_path.replace('\\', '/')  # Normalize path
         if not os.path.exists(file_path):
             return {}
@@ -112,18 +131,13 @@ def read_filters_json(tabactiv):
     except Exception as e:
         print(f"An unexpected error occurred while reading filter values: {e}")
         return {}
-    
-"""   
-tmp=read_annonces_json()g
-print(tmp) """
 
 @eel.expose
-def get_status_qualif(annonce, rowId):  # Make the function asynchronous
+def get_status_qualif(annonce, rowId):
     result = []
    
     annonce_dict = json.loads(annonce)  # Convert JSON string to dictionary
     id = annonce_dict.get('id')
-    # vérifier que le num id du fichier est bien le même que le le début du nom du répertoire
     
     parent_directory = os.path.dirname(rowId)  # Get the parent directory of rowId
     
@@ -132,34 +146,19 @@ def get_status_qualif(annonce, rowId):  # Make the function asynchronous
     else:
         result.append({"nom_fichier": False}) 
     
-    #il doit y avoir un fichier docx dans le répertoire 
     docx_files = [f for f in os.listdir(parent_directory) if f.endswith('.docx') and id in f]
     if os.path.exists(rowId) and docx_files:
         result.append({"fichier_docx": True})
     else:
         result.append({"fichier_docx": False})
     
-    #il y a un fichier pdf dans le répertoire 
     pdf_files = [f for f in os.listdir(parent_directory) if f.endswith('.pdf') and id in f]
     if os.path.exists(rowId) and pdf_files:
         result.append({"fichier_pdf": True})
     else:
         result.append({"fichier_pdf": False})
                 
-    return json.dumps(result) 
-
-""" @eel.expose
-def update_annonces_with_qa(annonces_list):
-    #annonces_list = read_annonces_json()
-    for annonce in annonces_list:
-        for file_path, data in annonce.items():
-            annonce_json = json.dumps(data)
-            row_id = file_path  # Assuming rowId is the file path
-            qa_status = get_status_qualif(annonce_json, row_id)
-            data['status'] = json.loads(qa_status)
-    
-#save_annonces_json(annonces_list)
-    return annonces_list """
+    return json.dumps(result)
 
 @eel.expose
 def open_parent_directory(file_path):
@@ -177,35 +176,16 @@ def open_parent_directory(file_path):
         print(f"Error opening parent directory: {e}")
         return False
 
-""" 
-@eel.expose
-def openFile(file_path):
-    try:
-        file_path = file_path.replace('\\', '/')  # Normalize path
-        if platform.system() == 'Windows':
-            os.startfile(file_path)
-        elif platform.system() == 'Darwin':  # macOS
-            subprocess.run(['open', file_path])
-        else:  # Linux
-            subprocess.run(['xdg-open', file_path])
-        return True
-    except Exception as e:
-        print(f"Error opening file: {e}")
-        return False """
-        
-        
 @eel.expose        
-def save_config_col(cols,tabactiv):
-   
-    file_path = os.path.join(os.getenv("ANNONCES_DIR_FILTER"),tabactiv+"_colums")+".json"
+def save_config_col(cols, tabactiv):
+    file_path = os.path.join(os.getenv("ANNONCES_DIR_FILTER"), tabactiv + "_colums") + ".json"
     file_path = file_path.replace('\\', '/')  # Normalize path
     try:
         with open(file_path, 'w', encoding='utf-8') as file:
             json.dump(cols, file, ensure_ascii=False, indent=4)
     except Exception as e:
         print(f"An unexpected error occurred while saving colums config: {e}")
-        
-        
+
 @eel.expose
 def load_config_col(tabactiv):
     try:
@@ -222,13 +202,23 @@ def load_config_col(tabactiv):
 
 @eel.expose
 def file_exists(file_path):
-    """
-    Check if a file exists at the given path.
-    
-    Args:
-        file_path (str): Path to the file to check
-        
-    Returns:
-        bool: True if file exists, False otherwise
-    """
     return os.path.isfile(file_path)
+
+def define_default_data():
+    return {
+        "id": "",
+        "description": "?",
+        "etat": "Auto",
+        "entreprise": "?",
+        "categorie": "",
+        "Date": "",
+        "todo": "?",
+        "todoList": "",
+        "action": "",
+        "tel": "",
+        "contact": "",
+        "url": "",
+        "Commentaire": "",
+        "type": "AN",
+        "type_question": "pdf"
+    }

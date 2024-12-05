@@ -2,8 +2,7 @@ import eel
 import sys
 from pathlib import Path
 import src.py.function3 as functions3  # Import the function3 module
-import src.py.qa   
-import src.py.qa1  
+
 
 # Add the parent directory of the current file to the Python path
 sys.path.append(str(Path(__file__).parent))
